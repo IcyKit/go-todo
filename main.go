@@ -47,8 +47,12 @@ func ask() ToDo {
 }
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
+	tds := []ToDo{
+		{title: "123", description: "321", isCompleted: false},
+	}
 	fmt.Printf("получен GET-запрос на /\n")
-	io.WriteString(w, "Hello")
+	str := fmt.Sprintf("title - %v, description - %v, isCompleted - %v", tds[0].title, tds[0].description, tds[0].isCompleted)
+	io.WriteString(w, str)
 }
 
 func main() {
