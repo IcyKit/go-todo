@@ -1,66 +1,22 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"strings"
+	"gin-app/handlers"
+
+	"github.com/gin-gonic/gin"
 )
 
-type ToDo struct {
-	title       string
-	description string
-	isCompleted bool
-}
-
-func ask() ToDo {
-	reader := bufio.NewReader(os.Stdin)
-
-	// Title
-	fmt.Println("Привет! Введи название задачи: ")
-	title, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Ошибка чтения ввода", err)
-	}
-	title = strings.TrimSpace(title)
-
-	// Description
-	fmt.Println("Супер! А теперь введи описание задачи: ")
-	description, err := reader.ReadString('\n')
-
-	if err != nil {
-		fmt.Println("Ошибка чтения ввода", err)
-	}
-	description = strings.TrimSpace(description)
-
-	// Result
-	str := fmt.Sprintf("Твоя задача сформирована, заголовок: %v, описание: %v", title, description)
-	fmt.Println(str)
-
-	return ToDo{
-		title:       title,
-		description: description,
-		isCompleted: false,
-	}
-}
-
-func getRoot(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("получен GET-запрос на /\n")
-	io.WriteString(w, "Hello")
-}
-
 func main() {
-	tds := []ToDo{}
+	r := gin.Default()
 
-	http.HandleFunc("GET /", getRoot)
-	fmt.Println("Сервер запущен на http://localhost:8080")
+	r.GET("/todo", handlers.GetAllTodoes)
+	r.GET("/todo/:id", handlers.GetTodo)
+	r.POST("/todo", handlers.CreateTodo)
 
-	err := http.ListenAndServe(":8080", nil)
+	fmt.Println("Сервер Gin запущен на http://localhost:8080")
+	err := r.Run(":8080")
 	if err != nil {
 		fmt.Printf("ошибка запуска сервера: %s\n", err)
 	}
-
-	fmt.Println("Задачи:", tds)
 }
