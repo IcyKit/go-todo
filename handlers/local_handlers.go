@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllTodoes(c *gin.Context) {
+func LocalGetAllTodoes(c *gin.Context) {
 	todoes, err := todo.LoadAllTodoes("db.json")
 
 	if err != nil {
@@ -19,7 +19,7 @@ func GetAllTodoes(c *gin.Context) {
 	c.JSON(200, todoes)
 }
 
-func GetTodo(c *gin.Context) {
+func LocalGetTodo(c *gin.Context) {
 	todoes, err := todo.LoadAllTodoes("db.json")
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Ошибка чтения БД"})
@@ -39,7 +39,7 @@ func GetTodo(c *gin.Context) {
 	}
 }
 
-func CreateTodo(c *gin.Context) {
+func LocalCreateTodo(c *gin.Context) {
 	var td todo.ToDo
 
 	err := c.BindJSON(&td)
@@ -48,11 +48,38 @@ func CreateTodo(c *gin.Context) {
 		return
 	}
 
-	todoes, err := todo.UpdateAllTodoes("db.json", td)
+	todoes, err := todo.AddOneTodoes("db.json", td)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err})
 		return
 	}
 
 	c.JSON(http.StatusCreated, todoes)
+}
+
+func LocalDeleteTodo(c *gin.Context) {
+	todoes, err := todo.LoadAllTodoes("db.json")
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Ошибка чтения БД"})
+		return
+	}
+
+	tdId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Ошибка преобразования числа"})
+		return
+	}
+
+	for i, v := range todoes {
+		if v.Id == tdId {
+			arr := append(append(todoes[:i], todoes[i+1:]...))
+
+			_, err := todo.UpdateAllTodoes("db.json", arr)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err})
+			}
+
+			c.JSON(200, arr)
+		}
+	}
 }
