@@ -24,24 +24,19 @@ func GORMGetAllTodoes(c *gin.Context) {
 func GORMGetTodo(c *gin.Context) {
 	var td []todo.ToDo
 
-	result := db.DB.Find(&td)
-
-	if result.Error != nil {
-		c.JSON(500, gin.H{"error": result.Error.Error()})
-		return
-	}
-
 	tdId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Ошибка преобразования числа"})
 		return
 	}
 
-	for _, v := range td {
-		if v.Id == tdId {
-			c.JSON(200, v)
-		}
+	result := db.DB.First(&td, tdId)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+		return
 	}
+
+	c.JSON(200, td[0])
 }
 
 func GORMCreateTodo(c *gin.Context) {
