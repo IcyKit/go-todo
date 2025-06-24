@@ -32,7 +32,7 @@ func LoadAllTodoes(path string) ([]ToDo, error) {
 	return todoes, nil
 }
 
-func UpdateAllTodoes(path string, td ToDo) ([]ToDo, error) {
+func AddOneTodoes(path string, td ToDo) ([]ToDo, error) {
 	todoes, err := LoadAllTodoes(path)
 
 	if err != nil {
@@ -48,4 +48,14 @@ func UpdateAllTodoes(path string, td ToDo) ([]ToDo, error) {
 
 	os.WriteFile(path, bytes, 0666)
 	return todoes, nil
+}
+
+func UpdateAllTodoes(path string, newTds []ToDo) ([]ToDo, error) {
+	bytes, err := json.Marshal(newTds)
+	if err != nil {
+		return nil, err
+	}
+
+	os.WriteFile(path, bytes, 0666)
+	return newTds, nil
 }
