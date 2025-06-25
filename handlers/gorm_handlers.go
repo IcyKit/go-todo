@@ -3,20 +3,21 @@ package handlers
 import (
 	"gin-app/db"
 	"gin-app/todo"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GORMGetAllTodoes(c *gin.Context) {
 	var td []todo.ToDo
 
-	result := db.DB.Find(&td)
+	// result := db.DB.Find(&td)
 
-	if result.Error != nil {
-		c.JSON(500, gin.H{"error": result.Error.Error()})
-		return
-	}
+	// if result.Error != nil {
+	// 	c.JSON(500, gin.H{"error": result.Error.Error()})
+	// 	return
+	// }
 
 	c.JSON(200, td)
 }
