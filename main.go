@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gin-app/db"
 	"gin-app/handlers"
-	"gin-app/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -13,7 +12,7 @@ func main() {
 	r := gin.Default()
 	db.Init()
 
-	r.Use(middleware.Logger())
+	//	r.Use(middleware.Logger())
 
 	r.GET("/todo", handlers.GORMGetAllTodoes)
 	r.GET("/todo/:id", handlers.GORMGetTodo)

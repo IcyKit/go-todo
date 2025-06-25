@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -39,7 +40,7 @@ func TestGORMGetAllTodoes(t *testing.T) {
 
 func TestGORMGetTodo(t *testing.T) {
 	r := setupRouter()
-	n := 10
+	n := 1
 
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/todo/%v", n), nil)
 	w := httptest.NewRecorder()
@@ -54,6 +55,45 @@ func TestGORMGetTodo(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, td.Id, n)
+}
+
+func TestGORMCreateTodo(t *testing.T) {
+	r := setupRouter()
+	body := `{"id":2,"title":"Тест таска добавлена!","description":"описание тест таски","is_сompleted":false}`
+
+	req, _ := http.NewRequest("POST", "/todo", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	var td todo.ToDo
+	err := json.Unmarshal([]byte(w.Body.String()), &td)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Equal(t, td.Title, "Тест таска добавлена!")
+
+	d_req, _ := http.NewRequest("DELETE", "/todo/2", nil)
+	r.ServeHTTP(w, d_req)
+}
+
+func TestGORMDeleteTodo(t *testing.T) {
+	r := setupRouter()
+
+	td := todo.ToDo{Id: 10, Title: "Для удаления", Description: "эта таска будет удалена", IsCompleted: false}
+	db.DB.Create(&td)
+
+	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/todo/%v", td.Id), nil)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var check todo.ToDo
+	res := db.DB.First(&check, td.Id)
+	assert.Error(t, res.Error)
 }
 
 func TestMain(m *testing.M) {
